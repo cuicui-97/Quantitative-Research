@@ -1,0 +1,59 @@
+# 环境配置
+.env
+*.env
+
+# 数据文件
+data/
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# 日志
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Conda
+*.conda
+.conda/
+envs/
+environment_backup.yml
+
+# 项目文档（包含敏感信息）
+project.md
+
+# Claude 和 CatPaw 配置（隐藏目录）
+.claude/
+.catpaw/
+
+# 测试和临时文件
+test_*.py
+debug_*.py
+debug_*.sh
+*.tmp
+
+# macOS 系统文件（补充）
+.AppleDouble
+.LSOverride

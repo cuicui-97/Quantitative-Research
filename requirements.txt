@@ -1,0 +1,14 @@
+# 核心依赖
+tushare==1.4.24
+pandas==2.2.0
+numpy==1.26.0
+
+# 配置管理
+python-dotenv==1.0.1
+
+# 可选：数据分析
+openpyxl==3.1.2  # Excel 支持
+pyarrow==14.0.0  # Parquet 格式支持（性能优化）
+
+# 可选：进度条
+tqdm==4.66.1
