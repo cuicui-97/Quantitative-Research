@@ -1,121 +1,16 @@
 """
-工具函数模块
-提供重试装饰器、日志配置、日期获取等通用功能
+日期工具函数
+提供交易日期获取的通用方法
 """
-import time
 import logging
 import pandas as pd
-from functools import wraps
 from pathlib import Path
 from typing import Optional, List
 from datetime import datetime
+
 from config.config import Config
 
-
-def retry_on_error(max_retries=None, delay=None, backoff=None):
-    """
-    重试装饰器，支持指数退避
-
-    Args:
-        max_retries: 最大重试次数（默认使用配置）
-        delay: 初始延迟时间（秒，默认使用配置）
-        backoff: 延迟倍数（默认使用配置）
-    """
-    max_retries = max_retries or Config.RETRY_TIMES
-    delay = delay or Config.RETRY_DELAY
-    backoff = backoff or Config.RETRY_BACKOFF
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            retries = 0
-            current_delay = delay
-            logger = logging.getLogger(func.__module__)
-
-            while retries < max_retries:
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    retries += 1
-                    if retries >= max_retries:
-                        logger.error(
-                            f"{func.__name__} 失败，已达最大重试次数 {max_retries}: {e}"
-                        )
-                        raise
-
-                    logger.warning(
-                        f"{func.__name__} 失败，{current_delay}秒后重试 "
-                        f"({retries}/{max_retries}): {e}"
-                    )
-                    time.sleep(current_delay)
-                    current_delay *= backoff
-
-        return wrapper
-    return decorator
-
-
-def setup_logger(name=None, log_file=None, level=None):
-    """
-    配置日志系统
-
-    Args:
-        name: 日志记录器名称（默认为 root）
-        log_file: 日志文件路径（默认使用配置）
-        level: 日志级别（默认使用配置）
-
-    Returns:
-        logging.Logger: 配置好的日志记录器
-    """
-    # 确保日志目录存在
-    Config.ensure_dirs()
-
-    # 设置日志文件路径
-    if log_file is None:
-        log_file = Config.get_log_file()
-
-    # 设置日志级别
-    if level is None:
-        level = getattr(logging, Config.LOG_LEVEL)
-
-    # 创建日志记录器
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # 避免重复添加处理器
-    if logger.handlers:
-        return logger
-
-    # 创建文件处理器
-    file_handler = logging.FileHandler(log_file, encoding='utf-8')
-    file_handler.setLevel(level)
-
-    # 创建控制台处理器
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-
-    # 创建格式化器
-    formatter = logging.Formatter(
-        Config.LOG_FORMAT,
-        datefmt=Config.LOG_DATE_FORMAT
-    )
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-
-    # 添加处理器
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    return logger
-
-
-def ensure_directory(path):
-    """
-    确保目录存在
-
-    Args:
-        path: 目录路径（str 或 Path）
-    """
-    Path(path).mkdir(parents=True, exist_ok=True)
+logger = logging.getLogger(__name__)
 
 
 def get_trade_dates(
@@ -134,8 +29,6 @@ def get_trade_dates(
     Returns:
         pd.DatetimeIndex: 交易日期索引（升序排列）
     """
-    logger = logging.getLogger(__name__)
-
     # 方法 1: 从本地交易日历缓存读取（最快）
     trade_cal_file = Config.SUPPLEMENTARY_DATA_DIR / 'trade_calendar.csv'
     if trade_cal_file.exists():
@@ -234,33 +127,20 @@ def get_all_stocks(list_status: str = 'L') -> List[str]:
     获取所有股票代码
 
     Args:
-        list_status: 上市状态
-            - 'L': 上市
-            - 'D': 退市
-            - 'P': 暂停上市
-            - 'ALL': 所有股票（包括上市、退市、暂停上市）
+        list_status: 上市状态 'L'上市 'D'退市 'P'暂停上市
 
     Returns:
         List[str]: 股票代码列表
     """
-    logger = logging.getLogger(__name__)
-
     basic_file = Config.BASIC_DATA_DIR / 'all_companies_info.csv'
     if not basic_file.exists():
         logger.error(f"基础数据文件不存在: {basic_file}")
         raise FileNotFoundError(f"基础数据文件不存在: {basic_file}")
 
     df = pd.read_csv(basic_file)
+    stocks = df[df['list_status'] == list_status]['ts_code'].tolist()
 
-    if list_status == 'ALL':
-        # 获取所有股票（包括上市、退市、暂停上市）
-        stocks = df['ts_code'].tolist()
-        logger.info(f"获取到 {len(stocks)} 只股票（所有状态）")
-    else:
-        # 获取指定状态的股票
-        stocks = df[df['list_status'] == list_status]['ts_code'].tolist()
-        logger.info(f"获取到 {len(stocks)} 只股票（list_status={list_status}）")
-
+    logger.info(f"获取到 {len(stocks)} 只股票（list_status={list_status}）")
     return stocks
 
 

@@ -39,6 +39,8 @@ class Config:
     BASIC_DATA_DIR = DATA_DIR / 'basic'
     DAILY_DATA_DIR = DATA_DIR / 'daily'
     LOG_DIR = DATA_DIR / 'logs'
+    SUPPLEMENTARY_DATA_DIR = DATA_DIR / 'supplementary'  # 补充数据目录
+    MATRIX_DATA_DIR = DATA_DIR / 'matrices'  # 矩阵输出目录
 
     # 基础数据文件路径
     BASIC_DATA_FILE = BASIC_DATA_DIR / 'all_companies_info.csv'

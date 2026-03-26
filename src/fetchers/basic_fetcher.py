@@ -1,15 +1,11 @@
 """
-数据抓取核心逻辑模块
-包含基础数据抓取和日线行情抓取功能
+基础数据抓取器
+负责抓取股票基础信息
 """
-import os
 import logging
 import pandas as pd
-import tushare as ts
-from pathlib import Path
-from datetime import datetime
 from config.config import Config
-from src.tushare_client import TushareClient
+from src.api.tushare_api import TushareAPI
 from src.utils import retry_on_error
 
 
@@ -23,14 +19,14 @@ class BasicDataFetcher:
     - new_share: IPO 信息
     """
 
-    def __init__(self, client: TushareClient):
+    def __init__(self, api: TushareAPI):
         """
         初始化基础数据抓取器
 
         Args:
-            client: TushareClient 实例
+            api: TushareAPI 实例
         """
-        self.client = client
+        self.api = api
         self.logger = logging.getLogger(__name__)
 
     @retry_on_error()
@@ -51,9 +47,7 @@ class BasicDataFetcher:
             status_name = {'L': '上市', 'D': '退市', 'P': '暂停上市'}[status]
             self.logger.info(f"正在获取 {status_name} 股票...")
 
-            df = self.client.call_api(
-                'stock_basic',
-                exchange='',  # 空表示所有交易所
+            df = self.api.fetch_stock_basic(
                 list_status=status,
                 fields='ts_code,symbol,name,area,industry,market,list_date,delist_date'
             )
@@ -94,8 +88,7 @@ class BasicDataFetcher:
         for exchange in ['SSE', 'SZSE', 'BSE']:
             self.logger.info(f"正在获取 {exchange} 交易所的公司信息...")
 
-            df = self.client.call_api(
-                'stock_company',
+            df = self.api.fetch_stock_company(
                 exchange=exchange,
                 fields='ts_code,chairman,manager,secretary,reg_capital,setup_date,'
                        'province,city,website,email,employees,main_business,business_scope'
@@ -129,11 +122,7 @@ class BasicDataFetcher:
 
         try:
             # 不指定日期范围，获取所有历史IPO数据
-            df = self.client.call_api(
-                'new_share',
-                fields='ts_code,sub_code,name,ipo_date,issue_date,amount,market_amount,'
-                       'price,pe,limit_amount,funds,ballot'
-            )
+            df = self.api.fetch_new_share()
 
             if df is not None and len(df) > 0:
                 self.logger.info(f"获取到 {len(df)} 条 new_share 数据")
@@ -205,169 +194,3 @@ class BasicDataFetcher:
         self.logger.info("=" * 60)
 
         return df_merged
-
-
-class DailyDataFetcher:
-    """
-    日线行情数据抓取器
-
-    负责批量抓取股票日线行情数据（后复权）
-    """
-
-    def __init__(self, client: TushareClient):
-        """
-        初始化日线数据抓取器
-
-        Args:
-            client: TushareClient 实例
-        """
-        self.client = client
-        self.logger = logging.getLogger(__name__)
-
-    @retry_on_error()
-    def fetch_daily_hfq(self, ts_code, start_date, end_date='20991231'):
-        """
-        获取单只股票的后复权日线数据
-
-        Args:
-            ts_code: 股票代码
-            start_date: 开始日期（YYYYMMDD）
-            end_date: 结束日期（YYYYMMDD，默认到未来）
-
-        Returns:
-            pandas.DataFrame: 日线数据（按日期升序）
-        """
-        self.logger.debug(
-            f"开始获取 {ts_code} 的日线数据（{start_date} ~ {end_date}）"
-        )
-
-        # 使用 pro_bar 获取后复权数据
-        df = ts.pro_bar(
-            ts_code=ts_code,
-            adj='hfq',  # 后复权
-            start_date=start_date,
-            end_date=end_date,
-            api=self.client.pro
-        )
-
-        if df is None or len(df) == 0:
-            self.logger.warning(f"{ts_code} 没有数据")
-            return None
-
-        # 按日期升序排列
-        df = df.sort_values('trade_date').reset_index(drop=True)
-
-        self.logger.debug(f"{ts_code} 获取到 {len(df)} 条数据")
-        return df
-
-    def fetch_all_stocks(
-        self,
-        stock_list_df,
-        data_dir=None,
-        skip_existing=None,
-        start_index=0,
-        batch_size=None
-    ):
-        """
-        批量获取所有股票的日线数据
-
-        Args:
-            stock_list_df: 股票列表 DataFrame（必须包含 ts_code 和 list_date 列）
-            data_dir: 数据保存目录（默认使用配置）
-            skip_existing: 是否跳过已存在的文件（默认使用配置）
-            start_index: 起始索引（用于分批抓取）
-            batch_size: 批次大小（None 表示全部抓取）
-
-        Returns:
-            dict: 统计信息（success_count, skip_count, fail_count）
-        """
-        # 使用默认配置
-        if data_dir is None:
-            data_dir = Config.DAILY_DATA_DIR
-        if skip_existing is None:
-            skip_existing = Config.SKIP_EXISTING
-
-        # 确保目录存在
-        Path(data_dir).mkdir(parents=True, exist_ok=True)
-
-        # 计算抓取范围
-        end_index = start_index + batch_size if batch_size else len(stock_list_df)
-        stock_subset = stock_list_df.iloc[start_index:end_index]
-        total = len(stock_subset)
-
-        # 统计信息
-        success_count = 0
-        skip_count = 0
-        fail_count = 0
-        fail_list = []
-
-        self.logger.info("=" * 60)
-        self.logger.info(
-            f"开始批量抓取日线数据：第 {start_index + 1} ~ {start_index + total} 只股票 "
-            f"(共 {len(stock_list_df)} 只)"
-        )
-        self.logger.info(f"数据保存目录: {data_dir}")
-        self.logger.info(f"断点续传: {'开启' if skip_existing else '关闭'}")
-        self.logger.info("=" * 60)
-
-        # 遍历股票列表
-        for idx, row in enumerate(stock_subset.itertuples(), start=1):
-            ts_code = row.ts_code
-            list_date = row.list_date
-
-            # 生成文件路径
-            file_path = Path(data_dir) / f"{ts_code}.csv"
-
-            # 断点续传：检查文件是否已存在
-            if skip_existing and file_path.exists():
-                self.logger.info(
-                    f"[{idx}/{total}] {ts_code} 已存在，跳过"
-                )
-                skip_count += 1
-                continue
-
-            try:
-                # 获取数据
-                df = self.fetch_daily_hfq(ts_code, start_date=list_date)
-
-                if df is not None and len(df) > 0:
-                    # 保存到文件
-                    df.to_csv(file_path, index=False, encoding='utf-8-sig')
-                    self.logger.info(
-                        f"[{idx}/{total}] {ts_code} 保存成功 ({len(df)} 条数据)"
-                    )
-                    success_count += 1
-                else:
-                    self.logger.warning(
-                        f"[{idx}/{total}] {ts_code} 无数据"
-                    )
-                    fail_count += 1
-                    fail_list.append((ts_code, "无数据"))
-
-            except Exception as e:
-                self.logger.error(
-                    f"[{idx}/{total}] {ts_code} 失败: {e}"
-                )
-                fail_count += 1
-                fail_list.append((ts_code, str(e)))
-
-        # 输出统计信息
-        self.logger.info("=" * 60)
-        self.logger.info("批量抓取完成")
-        self.logger.info(f"成功: {success_count}")
-        self.logger.info(f"跳过: {skip_count}")
-        self.logger.info(f"失败: {fail_count}")
-
-        if fail_list:
-            self.logger.warning("失败列表:")
-            for ts_code, reason in fail_list:
-                self.logger.warning(f"  - {ts_code}: {reason}")
-
-        self.logger.info("=" * 60)
-
-        return {
-            'success_count': success_count,
-            'skip_count': skip_count,
-            'fail_count': fail_count,
-            'fail_list': fail_list
-        }

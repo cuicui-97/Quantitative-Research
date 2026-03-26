@@ -29,15 +29,15 @@ sys.path.insert(0, str(project_root))
 
 import pandas as pd
 from config.config import Config
-from src.tushare_client import TushareClient
-from src.data_fetcher import DailyDataFetcher
+from src.api.tushare_api import TushareAPI
+from src.fetchers.daily_fetcher import DailyDataFetcher
 from src.utils import setup_logger
 
 
 def parse_args():
     """解析命令行参数"""
     parser = argparse.ArgumentParser(
-        description='批量抓取 A 股日线数据（后复权）',
+        description='批量抓取 A 股日线数据（三种复权类型：不复权、前复权、后复权）',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:
@@ -129,19 +129,19 @@ def main():
             logger.error(f"基础数据缺少必要字段: {missing_fields}")
             return 1
 
-        # 6. 创建 Tushare 客户端
-        logger.info("正在初始化 Tushare 客户端...")
-        client = TushareClient()
+        # 6. 创建 Tushare API 实例
+        logger.info("正在初始化 Tushare API...")
+        api = TushareAPI()
 
         # 7. 测试连接
         logger.info("正在测试连接...")
-        if not client.test_connection():
+        if not api.test_connection():
             logger.error("连接测试失败，请检查 TOKEN 和 API_URL 配置")
             return 1
 
-        # 8. 创建日线数据抓取器
+        # 8. 创建日线数据抓取器（传入基础信息）
         logger.info("正在创建日线数据抓取器...")
-        fetcher = DailyDataFetcher(client)
+        fetcher = DailyDataFetcher(api, basic_info_df=df_stocks)
 
         # 9. 批量抓取数据
         logger.info("开始批量抓取日线数据...")

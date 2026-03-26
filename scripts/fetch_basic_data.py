@@ -19,8 +19,8 @@ project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 from config.config import Config
-from src.tushare_client import TushareClient
-from src.data_fetcher import BasicDataFetcher
+from src.api.tushare_api import TushareAPI
+from src.fetchers.basic_fetcher import BasicDataFetcher
 from src.utils import setup_logger
 
 
@@ -36,19 +36,19 @@ def main():
         # 2. 确保目录存在
         Config.ensure_dirs()
 
-        # 3. 创建 Tushare 客户端
-        logger.info("正在初始化 Tushare 客户端...")
-        client = TushareClient()
+        # 3. 创建 Tushare API 实例
+        logger.info("正在初始化 Tushare API...")
+        api = TushareAPI()
 
         # 4. 测试连接
         logger.info("正在测试连接...")
-        if not client.test_connection():
+        if not api.test_connection():
             logger.error("连接测试失败，请检查 TOKEN 和 API_URL 配置")
             return 1
 
         # 5. 创建基础数据抓取器
         logger.info("正在创建基础数据抓取器...")
-        fetcher = BasicDataFetcher(client)
+        fetcher = BasicDataFetcher(api)
 
         # 6. 抓取并合并数据
         logger.info("正在抓取基础数据...")
