@@ -112,7 +112,7 @@ stock/
 
 ### 数据目录
 
-默认数据目录：`/Users/cuicui/Documents/stockdata/`
+数据存储在独立目录（可在 `config/config.py` 中配置）
 
 ```
 stockdata/
