@@ -2,9 +2,8 @@
 .env
 *.env
 
-# 数据文件
-data/
-!data/.gitkeep
+# 数据文件（已迁移到 /Users/cuicui/Documents/stockdata）
+# data/ 目录不再存在于项目中
 
 # Python
 __pycache__/

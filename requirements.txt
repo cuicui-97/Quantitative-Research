@@ -12,3 +12,7 @@ pyarrow==14.0.0  # Parquet 格式支持（性能优化）
 
 # 可选：进度条
 tqdm==4.66.1
+
+# 可视化
+matplotlib>=3.7.0
+plotly>=5.0.0

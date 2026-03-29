@@ -34,8 +34,8 @@ class Config:
     # 项目根目录
     BASE_DIR = Path(__file__).resolve().parent.parent
 
-    # 数据目录
-    DATA_DIR = BASE_DIR / 'data'
+    # 数据目录（独立存储，不在项目目录下）
+    DATA_DIR = Path('/Users/cuicui/Documents/stockdata')
     BASIC_DATA_DIR = DATA_DIR / 'basic'
     DAILY_DATA_DIR = DATA_DIR / 'daily'
     LOG_DIR = DATA_DIR / 'logs'
