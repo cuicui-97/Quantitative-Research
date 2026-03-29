@@ -9,7 +9,7 @@ from pathlib import Path
 
 from config.config import Config
 from data_engine.api.tushare_api import TushareAPI
-from data_engine.utils.trade_calendar import TradeCalendar
+from utils.trade_calendar import TradeCalendar
 
 
 class BaseFetcher(ABC):

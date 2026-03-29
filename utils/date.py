@@ -58,7 +58,7 @@ def get_trade_dates(
     if api is not None:
         logger.info("从 Tushare API 获取交易日历...")
         try:
-            from data_engine.utils.trade_calendar import TradeCalendar
+            from utils.trade_calendar import TradeCalendar
 
             trade_calendar = TradeCalendar(api)
             dates_list = trade_calendar.get_trade_dates(

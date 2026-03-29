@@ -22,7 +22,7 @@ import pandas as pd
 from config.config import Config
 from data_engine.processors.matrix_builder import MatrixBuilder
 from data_engine.processors.matrix_io import save_matrix, matrix_statistics
-from data_engine.utils import setup_logger, get_trade_dates, get_all_stocks
+from utils import setup_logger, get_trade_dates, get_all_stocks
 
 
 def parse_args():

@@ -8,7 +8,7 @@ from pathlib import Path
 from config.config import Config
 from data_engine.api.tushare_api import TushareAPI
 from data_engine.fetchers.base_fetcher import BaseFetcher
-from data_engine.utils import retry_on_error
+from utils import retry_on_error
 
 
 class DailyDataFetcher(BaseFetcher):

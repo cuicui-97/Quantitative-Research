@@ -7,7 +7,7 @@ import pandas as pd
 from data_engine.api.tushare_api import TushareAPI
 from data_engine.fetchers.base_fetcher import BaseFetcher
 from data_engine.fetchers.fetcher_utils import incremental_update
-from data_engine.utils import retry_on_error
+from utils import retry_on_error
 
 
 class RiskFreeRateFetcher(BaseFetcher):

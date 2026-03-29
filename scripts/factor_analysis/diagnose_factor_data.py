@@ -14,7 +14,7 @@ sys.path.insert(0, str(project_root))
 
 from config.config import Config
 from data_engine.processors.matrix_io import load_matrix
-from data_engine.utils import setup_logger
+from utils import setup_logger
 import pandas as pd
 import numpy as np
 

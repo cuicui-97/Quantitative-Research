@@ -21,7 +21,7 @@ from data_engine.api.tushare_api import TushareAPI
 from data_engine.fetchers.daily_basic_fetcher import DailyBasicFetcher
 from data_engine.fetchers.index_data_fetcher import IndexDataFetcher
 from data_engine.fetchers.risk_free_rate_fetcher import RiskFreeRateFetcher
-from data_engine.utils import setup_logger
+from utils import setup_logger
 
 
 def parse_args():

@@ -33,7 +33,7 @@ import pandas as pd
 from config.config import Config
 from data_engine.processors.matrix_processor import MatrixProcessor
 from data_engine.processors.matrix_io import save_matrix
-from data_engine.utils import setup_logger, get_trade_dates, get_all_stocks, format_date_range
+from utils import setup_logger, get_trade_dates, get_all_stocks, format_date_range
 
 
 def parse_args():

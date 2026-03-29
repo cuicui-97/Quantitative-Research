@@ -15,7 +15,7 @@ from datetime import datetime
 from config.config import Config
 from data_engine.api.tushare_api import TushareAPI
 from data_engine.fetchers.st_fetcher import STFetcher
-from data_engine.utils import setup_logger
+from utils import setup_logger
 
 
 def parse_args():

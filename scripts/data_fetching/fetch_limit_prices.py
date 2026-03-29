@@ -17,7 +17,7 @@ import argparse
 from config.config import Config
 from data_engine.api.tushare_api import TushareAPI
 from data_engine.fetchers.limit_fetcher import LimitFetcher
-from data_engine.utils import setup_logger, get_trade_dates, format_date_range
+from utils import setup_logger, get_trade_dates, format_date_range
 
 
 def parse_args():

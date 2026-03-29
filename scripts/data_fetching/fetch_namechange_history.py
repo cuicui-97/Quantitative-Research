@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from config.config import Config
 from data_engine.api.tushare_api import TushareAPI
-from data_engine.utils import setup_logger
+from utils import setup_logger
 
 
 def main():

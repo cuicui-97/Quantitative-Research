@@ -24,7 +24,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from config.config import Config
 from data_engine.processors.matrix_io import load_matrix
-from data_engine.utils import setup_logger
+from utils import setup_logger
 from factor_engine import SingleFactorAnalyzer
 
 # 设置中文字体

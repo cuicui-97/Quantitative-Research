@@ -14,8 +14,8 @@ import pandas as pd
 from dotenv import load_dotenv
 from config.config import Config
 from data_engine.api.tushare_api import TushareAPI
-from data_engine.utils.trade_calendar import TradeCalendar
-from data_engine.utils import setup_logger
+from utils.trade_calendar import TradeCalendar
+from utils import setup_logger
 
 # 加载环境变量
 load_dotenv()
