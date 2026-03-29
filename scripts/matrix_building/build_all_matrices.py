@@ -13,6 +13,13 @@
 7. 开盘收益率矩阵
 
 支持选择性构建：通过 --matrices 参数指定要构建的矩阵
+
+ST矩阵数据源说明：
+  - st_status.csv 包含完整历史数据（API数据 + namechange提取的历史数据）
+  - 如需更新完整ST数据，请运行：
+    1. python scripts/data_fetching/fetch_st_status.py         # 更新API数据
+    2. python scripts/data_fetching/fetch_namechange_history.py # 更新名称变更历史
+    3. python scripts/data_fetching/fetch_and_merge_st_data.py  # 融合数据到st_status.csv
 """
 import sys
 from pathlib import Path

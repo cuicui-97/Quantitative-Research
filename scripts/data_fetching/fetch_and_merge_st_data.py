@@ -236,8 +236,16 @@ def main():
         # 第四步：合并数据
         df_merged = merge_st_data(df_st_from_namechange, df_st_from_api, logger)
 
-        # 保存
-        output_file = Config.SUPPLEMENTARY_DATA_DIR / 'st_status_merged.csv'
+        # 保存 - 直接覆盖 st_status.csv（融合后的完整数据）
+        output_file = Config.SUPPLEMENTARY_DATA_DIR / 'st_status.csv'
+
+        # 如果原文件存在，先备份（仅保留API原始数据作为参考）
+        api_backup = Config.SUPPLEMENTARY_DATA_DIR / 'st_status_api_only.csv'
+        if output_file.exists() and not api_backup.exists():
+            import shutil
+            shutil.copy(output_file, api_backup)
+            logger.info(f"已备份API原始数据: {api_backup}")
+
         df_merged.to_csv(output_file, index=False, encoding='utf-8-sig')
 
         logger.info("=" * 80)
@@ -246,6 +254,7 @@ def main():
         logger.info(f"输出文件: {output_file}")
         logger.info(f"总记录数: {len(df_merged)} 条")
         logger.info(f"涉及股票: {df_merged['ts_code'].nunique()} 只")
+        logger.info(f"说明: st_status.csv 现在包含完整历史数据（API + namechange）")
         logger.info("=" * 80)
 
         return 0
