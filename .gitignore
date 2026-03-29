@@ -40,8 +40,9 @@ htmlcov/
 envs/
 environment_backup.yml
 
-# 项目文档（包含敏感信息）
-project.md
+# 私有文档（不上传到远程仓库）
+CLAUDE.md
+USER_GUIDE.md
 
 # Claude 和 CatPaw 配置（隐藏目录）
 .claude/
