@@ -46,39 +46,34 @@ class PerformanceMetrics:
         if logger:
             logger.info("计算统计指标...")
 
-        # 计算各组指标
+        # 添加多空组合到收益率DataFrame（最后一组 - 第一组）
+        first_group = group_returns.columns[0]
+        last_group = group_returns.columns[-1]
+        long_short_col = f'Long-Short ({last_group}-{first_group})'
+
+        # 将多空组合添加到group_returns
+        group_returns_with_ls = group_returns.copy()
+        group_returns_with_ls[long_short_col] = group_returns[last_group] - group_returns[first_group]
+
+        # 一次性计算所有组（包括多空组合）的统计指标
         stats = pd.DataFrame({
             # 日均收益（转为百分比）
-            'mean_return': group_returns.mean() * 100,
+            'mean_return': group_returns_with_ls.mean() * 100,
 
             # 收益波动率（转为百分比）
-            'std_return': group_returns.std() * 100,
+            'std_return': group_returns_with_ls.std() * 100,
 
             # 夏普比率（年化，假设252个交易日）
             # Sharpe = (mean / std) × sqrt(252)
-            'sharpe_ratio': group_returns.mean() / group_returns.std() * np.sqrt(252),
+            'sharpe_ratio': group_returns_with_ls.mean() / group_returns_with_ls.std() * np.sqrt(252),
 
             # 胜率（正收益天数 / 总交易天数）
-            'win_rate': (group_returns > 0).sum() / group_returns.notna().sum() * 100,
+            'win_rate': (group_returns_with_ls > 0).sum() / group_returns_with_ls.notna().sum() * 100,
 
             # 累计收益（转为百分比）
             # Cumulative = prod(1 + r_i) - 1
-            'cumulative_return': ((1 + group_returns).prod() - 1) * 100
+            'cumulative_return': ((1 + group_returns_with_ls).prod() - 1) * 100
         })
-
-        # 计算多空组合（最后一组 - 第一组）
-        # 使用实际的列索引，而不是假设的整数值
-        first_group = group_returns.columns[0]
-        last_group = group_returns.columns[-1]
-        long_short = group_returns[last_group] - group_returns[first_group]
-
-        stats.loc[f'Long-Short ({last_group}-{first_group})', :] = [
-            long_short.mean() * 100,
-            long_short.std() * 100,
-            long_short.mean() / long_short.std() * np.sqrt(252) if long_short.std() > 0 else 0,
-            (long_short > 0).sum() / long_short.notna().sum() * 100,
-            ((1 + long_short).prod() - 1) * 100
-        ]
 
         return stats
 
