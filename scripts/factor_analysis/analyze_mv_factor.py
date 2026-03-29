@@ -19,8 +19,8 @@ from config.config import Config
 from data_engine.processors.matrix_io import load_matrix
 from utils import setup_logger
 from factor_engine import SingleFactorAnalyzer
+from factor_engine.backtest.data_loader import load_index_data
 from factor_engine.backtest.visualization import (
-    load_index_data,
     plot_combined_returns,
     plot_combined_statistics
 )
