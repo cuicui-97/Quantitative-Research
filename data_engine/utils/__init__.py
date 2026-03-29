@@ -16,6 +16,7 @@ from .data import (
     dict_statistics
 )
 from .file import ensure_directory
+from .trade_calendar import TradeCalendar
 
 __all__ = [
     # 重试和日志
@@ -25,6 +26,7 @@ __all__ = [
     'get_trade_dates',
     'get_all_stocks',
     'format_date_range',
+    'TradeCalendar',
     # 数据处理
     'build_st_dict',
     'build_suspension_dict',
