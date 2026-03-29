@@ -11,7 +11,7 @@ PB因子分析
 import sys
 from pathlib import Path
 
-project_root = Path(__file__).resolve().parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import pandas as pd
@@ -409,5 +409,5 @@ def main():
     logger.info(f"结果保存目录: {output_dir.relative_to(Config.DATA_DIR.parent)}")
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+main()
