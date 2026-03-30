@@ -5,8 +5,11 @@
 """
 import pandas as pd
 import numpy as np
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 import logging
+
+if TYPE_CHECKING:
+    from .transaction_cost import TransactionCostCalculator
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +29,7 @@ class WeightCalculator:
         return_matrix: pd.DataFrame,
         mv_matrix: Optional[pd.DataFrame] = None,
         weighting: str = 'equal',
+        transaction_cost: Optional['TransactionCostCalculator'] = None,
         logger: Optional[logging.Logger] = None
     ) -> pd.DataFrame:
         """
@@ -35,12 +39,14 @@ class WeightCalculator:
         1. shift(-1) 将T+1日的收益前移到T日
         2. 对每个日期、每个组，找到该组的股票
         3. 根据加权方式计算该组的平均收益
+        4. 如果启用交易成本，扣除换手成本
 
         Args:
             group_matrix: 分组矩阵（T日）
             return_matrix: 收益率矩阵
             mv_matrix: 市值矩阵（市值加权时需要）
             weighting: 加权方式，'equal'=等权，'market_cap'=市值加权
+            transaction_cost: 交易成本计算器（可选）
             logger: 日志记录器
 
         Returns:
@@ -108,5 +114,17 @@ class WeightCalculator:
         if logger:
             logger.info(f"  分组收益矩阵: {group_returns.shape}")
             logger.info(f"  有效数据点: {group_returns.notna().sum().sum():,}")
+
+        # 扣除交易成本（如果启用）
+        if transaction_cost is not None:
+            if logger:
+                logger.info("  扣除交易成本...")
+            group_returns = transaction_cost.calculate_cost(
+                group_returns,
+                group_matrix,
+                mv_matrix
+            )
+            if logger:
+                logger.info("  交易成本扣除完成")
 
         return group_returns

@@ -1,0 +1,130 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+PB因子分析（含交易成本）
+
+特性：
+1. 测试时间：2015年至今
+2. 合并市值加权和等权重展示
+3. 添加指数基准对比（沪深300、上证50、中证1000）
+4. 考虑交易成本（佣金+印花税+滑点）
+"""
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+import pandas as pd
+from config.config import Config
+from data_engine.processors.matrix_io import load_matrix
+from utils import setup_logger
+from factor_engine import SingleFactorAnalyzer
+from factor_engine.backtest.data_loader import load_index_data
+from factor_engine.backtest.visualization import (
+    plot_combined_returns,
+    plot_combined_statistics
+)
+
+
+def main():
+    """主函数"""
+    logger = setup_logger()
+
+    logger.info("="*60)
+    logger.info("PB因子分析（2015年至今，含交易成本）")
+    logger.info("="*60)
+
+    # 加载矩阵数据
+    logger.info("\n加载矩阵数据...")
+    pb_matrix = load_matrix(Config.MATRIX_DATA_DIR / 'pb_matrix.csv')
+    mv_circ_matrix = load_matrix(Config.MATRIX_DATA_DIR / 'circ_mv_matrix.csv')
+    return_matrix = load_matrix(Config.MATRIX_DATA_DIR / 'open_return_matrix.csv')
+    tradability_matrix = load_matrix(Config.MATRIX_DATA_DIR / 'tradability_matrix.csv')
+
+    logger.info(f"  PB矩阵: {pb_matrix.shape}")
+    logger.info(f"  流通市值矩阵: {mv_circ_matrix.shape}")
+    logger.info(f"  收益率矩阵: {return_matrix.shape}")
+    logger.info(f"  可交易矩阵: {tradability_matrix.shape}")
+
+    # 对齐矩阵
+    logger.info("\n对齐矩阵...")
+    common_dates = (pb_matrix.index
+                   .intersection(return_matrix.index)
+                   .intersection(tradability_matrix.index)
+                   .intersection(mv_circ_matrix.index))
+    common_stocks = (pb_matrix.columns
+                    .intersection(return_matrix.columns)
+                    .intersection(tradability_matrix.columns)
+                    .intersection(mv_circ_matrix.columns))
+
+    logger.info(f"  对齐后: {len(common_dates)} 个交易日, {len(common_stocks)} 只股票")
+
+    pb = pb_matrix.loc[common_dates, common_stocks]
+    mv_circ = mv_circ_matrix.loc[common_dates, common_stocks]
+    returns = return_matrix.loc[common_dates, common_stocks]
+    tradable = tradability_matrix.loc[common_dates, common_stocks]
+
+    # 筛选日期范围
+    start_date = '2015-01-01'
+    start = pd.to_datetime(start_date)
+    date_mask = pd.to_datetime(pb.index, format='%Y%m%d') >= start
+
+    pb_filtered = pb.loc[date_mask]
+    returns_filtered = returns.loc[date_mask]
+    tradable_filtered = tradable.loc[date_mask]
+    mv_filtered = mv_circ.loc[date_mask]
+
+    logger.info(f"\n筛选后数据范围: {len(pb_filtered)} 个交易日, {len(pb_filtered.columns)} 只股票")
+
+    # 加载指数数据
+    index_returns = load_index_data(Config.SUPPLEMENTARY_DATA_DIR)
+
+    # 创建分析器（启用交易成本）
+    logger.info("\n创建因子分析器（启用交易成本）...")
+    analyzer = SingleFactorAnalyzer(
+        factor_name='PB',
+        factor_matrix=pb_filtered,
+        return_matrix=returns_filtered,
+        tradability_matrix=tradable_filtered,
+        mv_matrix=mv_filtered,
+        n_groups=10,
+        enable_transaction_cost=True,
+        commission_rate=Config.COMMISSION_RATE,
+        stamp_duty_rate=Config.STAMP_DUTY_RATE,
+        slippage_rate=Config.SLIPPAGE_RATE,
+        logger=logger
+    )
+
+    # 运行分析
+    output_dir = Config.DATA_DIR / 'factor_analysis_results' / 'pb_factor_with_cost'
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info("\n运行因子分析...")
+    results = analyzer.run_analysis(output_dir=output_dir, save_results=True)
+
+    # 绘制增强版图表
+    plot_combined_returns(
+        group_returns_equal=results['group_returns_equal'],
+        group_returns_mv=results['group_returns_mv'],
+        index_returns=index_returns,
+        factor_name='PB',
+        output_dir=output_dir,
+        start_date=start_date
+    )
+
+    plot_combined_statistics(
+        stats_equal=results['stats_equal'],
+        stats_mv=results['stats_mv'],
+        factor_name='PB',
+        output_dir=output_dir
+    )
+
+    logger.info("\n" + "="*60)
+    logger.info("PB因子分析完成（含交易成本）")
+    logger.info("="*60)
+    logger.info(f"结果保存目录: {output_dir.relative_to(Config.DATA_DIR.parent)}")
+
+
+# if __name__ == '__main__':
+main()

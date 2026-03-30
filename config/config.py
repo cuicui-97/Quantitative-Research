@@ -58,6 +58,11 @@ class Config:
     DEFAULT_BATCH_SIZE = None  # 默认批次大小（None 表示全部抓取）
     SKIP_EXISTING = True  # 默认跳过已存在的文件（断点续传）
 
+    # ==================== 交易成本配置 ====================
+    COMMISSION_RATE = 0.0003    # 佣金率（万3，双边）
+    STAMP_DUTY_RATE = 0.001     # 印花税率（千1，单边卖出）
+    SLIPPAGE_RATE = 0.001       # 滑点率（千1，双边）
+
     # ==================== 日志配置 ====================
     LOG_LEVEL = 'INFO'  # 日志级别
     LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'  # 日志格式

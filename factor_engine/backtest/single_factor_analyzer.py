@@ -13,6 +13,7 @@ from .grouping import FactorGrouper
 from .weighting import WeightCalculator
 from .metrics import PerformanceMetrics
 from .visualization import FactorVisualizer
+from .transaction_cost import TransactionCostCalculator
 
 
 class SingleFactorAnalyzer:
@@ -46,6 +47,10 @@ class SingleFactorAnalyzer:
         tradability_matrix: pd.DataFrame,
         mv_matrix: Optional[pd.DataFrame] = None,
         n_groups: int = 10,
+        enable_transaction_cost: bool = False,
+        commission_rate: float = 0.0003,
+        stamp_duty_rate: float = 0.001,
+        slippage_rate: float = 0.001,
         logger: Optional[logging.Logger] = None
     ):
         """
@@ -58,6 +63,10 @@ class SingleFactorAnalyzer:
             tradability_matrix: 可交易矩阵（dates × stocks，0=可交易，1=不可交易）
             mv_matrix: 市值矩阵（dates × stocks，可选，用于市值加权）
             n_groups: 分组数量，默认10
+            enable_transaction_cost: 是否启用交易成本计算
+            commission_rate: 佣金率（默认万3）
+            stamp_duty_rate: 印花税率（默认千1）
+            slippage_rate: 滑点率（默认千1）
             logger: 日志记录器
         """
         # 验证输入矩阵维度一致性
@@ -87,6 +96,20 @@ class SingleFactorAnalyzer:
         self.weight_calculator = WeightCalculator()
         self.metrics_calculator = PerformanceMetrics()
         self.visualizer = FactorVisualizer()
+
+        # 初始化交易成本计算器
+        if enable_transaction_cost:
+            self.transaction_cost = TransactionCostCalculator(
+                commission_rate=commission_rate,
+                stamp_duty_rate=stamp_duty_rate,
+                slippage_rate=slippage_rate
+            )
+            self.logger.info(
+                f"启用交易成本计算（佣金{commission_rate:.4%}, "
+                f"印花税{stamp_duty_rate:.4%}, 滑点{slippage_rate:.4%}）"
+            )
+        else:
+            self.transaction_cost = None
 
         # 结果容器
         self.group_matrix = None
@@ -133,6 +156,7 @@ class SingleFactorAnalyzer:
             self.group_matrix,
             self.return_matrix,
             weighting='equal',
+            transaction_cost=self.transaction_cost,
             logger=self.logger
         )
 
@@ -144,6 +168,7 @@ class SingleFactorAnalyzer:
                 self.return_matrix,
                 mv_matrix=self.mv_matrix,
                 weighting='market_cap',
+                transaction_cost=self.transaction_cost,
                 logger=self.logger
             )
         else:
