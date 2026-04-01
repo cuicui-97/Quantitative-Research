@@ -555,6 +555,52 @@ class TushareAPI:
             self._handle_api_error('shibor', e)
             raise
 
+    # ==================== 财务报表 API ====================
+
+    def fetch_income(self, period: str, report_type: str = None) -> pd.DataFrame:
+        """
+        获取利润表数据（全市场，按报告期）
+
+        使用 income_vip 接口，需要 5000 积分
+
+        Args:
+            period: 报告期 YYYYMMDD（如 '20201231' 为2020年报）
+            report_type: 报告类型（None=不过滤，返回所有类型）
+
+        Returns:
+            DataFrame: 利润表数据
+        """
+        self._rate_limit()
+        logger.debug(f"调用 income_vip: period={period}, report_type={report_type}")
+
+        fields = (
+            'ts_code,ann_date,f_ann_date,end_date,report_type,comp_type,end_type,'
+            'basic_eps,diluted_eps,'
+            'total_revenue,revenue,'
+            'total_cogs,oper_cost,sell_exp,admin_exp,fin_exp,fin_exp_int_exp,fin_exp_int_inc,'
+            'rd_exp,assets_impair_loss,credit_impa_loss,'
+            'operate_profit,non_oper_income,non_oper_exp,'
+            'total_profit,income_tax,'
+            'n_income,n_income_attr_p,minority_gain,'
+            'net_after_nr_lp_correct,'
+            'ebit,ebitda,'
+            'update_flag'
+        )
+
+        try:
+            df = self.pro.income_vip(period=period, report_type=report_type, fields=fields)
+
+            if df is None or len(df) == 0:
+                logger.debug(f"income_vip 返回空数据: period={period}, report_type={report_type}")
+                return pd.DataFrame()
+
+            logger.debug(f"获取到 {len(df)} 条利润表记录: period={period}, report_type={report_type}")
+            return df
+
+        except Exception as e:
+            self._handle_api_error('income_vip', e)
+            raise
+
     # ==================== 通用 API 调用 ====================
 
     def call_api(self, api_name: str, **kwargs) -> pd.DataFrame:

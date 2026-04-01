@@ -5,11 +5,13 @@
 from data_engine.processors.matrix_io import save_matrix, load_matrix, matrix_statistics
 from data_engine.processors.matrix_builder import MatrixBuilder
 from data_engine.processors.matrix_processor import MatrixProcessor
+from data_engine.processors.financial_matrix_builder import FinancialMatrixBuilder
 
 __all__ = [
     'save_matrix',
     'load_matrix',
     'matrix_statistics',
     'MatrixBuilder',
-    'MatrixProcessor'
+    'MatrixProcessor',
+    'FinancialMatrixBuilder',
 ]

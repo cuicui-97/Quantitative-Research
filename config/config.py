@@ -45,6 +45,10 @@ class Config:
     # 基础数据文件路径
     BASIC_DATA_FILE = BASIC_DATA_DIR / 'all_companies_info.csv'
 
+    # 财务报表数据文件路径
+    INCOME_DATA_FILE = SUPPLEMENTARY_DATA_DIR / 'income.csv'
+    TRADE_CALENDAR_FILE = SUPPLEMENTARY_DATA_DIR / 'trade_calendar.csv'
+
     # ==================== 抓取配置 ====================
     # 重试配置
     RETRY_TIMES = 3  # 最大重试次数

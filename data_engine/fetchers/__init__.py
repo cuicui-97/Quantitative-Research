@@ -7,11 +7,13 @@ from data_engine.fetchers.daily_fetcher import DailyDataFetcher
 from data_engine.fetchers.st_fetcher import STFetcher
 from data_engine.fetchers.suspension_fetcher import SuspensionFetcher
 from data_engine.fetchers.limit_fetcher import LimitFetcher
+from data_engine.fetchers.income_fetcher import IncomeFetcher
 
 __all__ = [
     'BasicDataFetcher',
     'DailyDataFetcher',
     'STFetcher',
     'SuspensionFetcher',
-    'LimitFetcher'
+    'LimitFetcher',
+    'IncomeFetcher',
 ]
