@@ -211,7 +211,7 @@ def merge_st_data(df_namechange: pd.DataFrame, df_api: pd.DataFrame, logger) -> 
 
 def main():
     """主函数"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info("=" * 80)
     logger.info("获取并合并完整的 ST 状态数据")
     logger.info("=" * 80)

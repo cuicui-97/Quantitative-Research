@@ -26,7 +26,7 @@ from data_engine.helpers.st_helpers import is_st_name, extract_st_periods, expan
 
 def main():
     """主函数"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info("=" * 80)
     logger.info("从 namechange 接口获取历史 ST 状态数据")
     logger.info("=" * 80)

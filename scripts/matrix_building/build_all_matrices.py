@@ -96,7 +96,7 @@ def main():
     args = parse_args()
 
     # 设置日志
-    logger = setup_logger()
+    logger = setup_logger(prefix="matrix")
     logger.info("=" * 60)
     logger.info("批量构建矩阵（使用统一 MatrixProcessor）")
     logger.info("=" * 60)

@@ -90,7 +90,7 @@ def main():
     args = parse_args()
 
     # 2. 初始化日志系统（配置根logger，让所有模块的日志都能输出）
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info("=" * 60)
     logger.info("日线数据抓取脚本启动")
     logger.info("=" * 60)

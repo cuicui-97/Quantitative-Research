@@ -8,6 +8,7 @@ from data_engine.fetchers.st_fetcher import STFetcher
 from data_engine.fetchers.suspension_fetcher import SuspensionFetcher
 from data_engine.fetchers.limit_fetcher import LimitFetcher
 from data_engine.fetchers.income_fetcher import IncomeFetcher
+from data_engine.fetchers.industry_fetcher import IndustryFetcher
 
 __all__ = [
     'BasicDataFetcher',
@@ -16,4 +17,5 @@ __all__ = [
     'SuspensionFetcher',
     'LimitFetcher',
     'IncomeFetcher',
+    'IndustryFetcher',
 ]

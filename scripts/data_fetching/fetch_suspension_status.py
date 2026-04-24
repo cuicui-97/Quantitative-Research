@@ -45,7 +45,7 @@ def main():
     args = parse_args()
 
     # 设置日志
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info("=" * 60)
     logger.info("停牌信息获取脚本启动")
     logger.info("=" * 60)

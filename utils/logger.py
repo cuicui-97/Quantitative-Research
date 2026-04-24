@@ -5,7 +5,7 @@ import logging
 from config.config import Config
 
 
-def setup_logger(name=None, log_file=None, level=None):
+def setup_logger(name=None, log_file=None, level=None, prefix: str = 'run'):
     """
     配置日志系统
 
@@ -13,6 +13,7 @@ def setup_logger(name=None, log_file=None, level=None):
         name: 日志记录器名称（默认为 root）
         log_file: 日志文件路径（默认使用配置）
         level: 日志级别（默认使用配置）
+        prefix: 日志文件名前缀，如 'fetch'、'factor'（默认 'run'）
 
     Returns:
         logging.Logger: 配置好的日志记录器
@@ -22,7 +23,7 @@ def setup_logger(name=None, log_file=None, level=None):
 
     # 设置日志文件路径
     if log_file is None:
-        log_file = Config.get_log_file()
+        log_file = Config.get_log_file(prefix=prefix)
 
     # 设置日志级别
     if level is None:

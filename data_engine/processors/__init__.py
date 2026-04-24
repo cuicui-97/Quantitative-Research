@@ -6,6 +6,7 @@ from data_engine.processors.matrix_io import save_matrix, load_matrix, matrix_st
 from data_engine.processors.matrix_builder import MatrixBuilder
 from data_engine.processors.matrix_processor import MatrixProcessor
 from data_engine.processors.financial_matrix_builder import FinancialMatrixBuilder
+from data_engine.processors.industry_matrix_builder import IndustryMatrixBuilder
 
 __all__ = [
     'save_matrix',
@@ -14,4 +15,5 @@ __all__ = [
     'MatrixBuilder',
     'MatrixProcessor',
     'FinancialMatrixBuilder',
+    'IndustryMatrixBuilder',
 ]

@@ -601,6 +601,65 @@ class TushareAPI:
             self._handle_api_error('income_vip', e)
             raise
 
+    # ==================== 行业分类 API ====================
+
+    def fetch_index_classify(self, level: str = 'L1', src: str = 'SW2021') -> pd.DataFrame:
+        """
+        获取申万行业分类树
+
+        Args:
+            level: 行业层级 'L1'一级 'L2'二级 'L3'三级
+            src: 分类标准 'SW2021'(2021版) 'SW2014'(2014版)
+
+        Returns:
+            DataFrame: 行业分类（index_code, industry_name, industry_code, level, parent_code）
+        """
+        self._rate_limit()
+        logger.debug(f"调用 index_classify: level={level}, src={src}")
+
+        try:
+            df = self.pro.index_classify(level=level, src=src)
+
+            if df is None or len(df) == 0:
+                logger.warning(f"index_classify 返回空数据: level={level}, src={src}")
+                return pd.DataFrame()
+
+            logger.info(f"获取到 {len(df)} 个申万{level}行业")
+            return df
+
+        except Exception as e:
+            self._handle_api_error('index_classify', e)
+            raise
+
+    def fetch_index_member_all(self, l1_code: str = None, ts_code: str = None) -> pd.DataFrame:
+        """
+        获取申万行业成分（含历史变更记录）
+
+        Args:
+            l1_code: 一级行业代码（可选，不填则返回全市场）
+            ts_code: 股票代码（可选，查询单只股票的行业归属）
+
+        Returns:
+            DataFrame: 行业成分（ts_code, name, l1_code, l1_name, l2_code, l2_name,
+                                  l3_code, l3_name, in_date, out_date, is_new）
+        """
+        self._rate_limit()
+        logger.debug(f"调用 index_member_all: l1_code={l1_code}, ts_code={ts_code}")
+
+        try:
+            df = self.pro.index_member_all(l1_code=l1_code, ts_code=ts_code)
+
+            if df is None or len(df) == 0:
+                logger.debug(f"index_member_all 返回空数据: l1_code={l1_code}, ts_code={ts_code}")
+                return pd.DataFrame()
+
+            logger.debug(f"获取到 {len(df)} 条行业成分记录")
+            return df
+
+        except Exception as e:
+            self._handle_api_error('index_member_all', e)
+            raise
+
     # ==================== 通用 API 调用 ====================
 
     def call_api(self, api_name: str, **kwargs) -> pd.DataFrame:

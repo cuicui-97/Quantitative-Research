@@ -322,12 +322,12 @@ def plot_combined_returns(
                     go.Scatter(
                         x=common_dates,
                         y=idx_cum_aligned,
-                        name=f'{idx_name} (市值图)',
+                        name=f'{idx_name} (市值加权图)',
                         line=dict(width=3, dash='dash', color=index_colors.get(idx_name, 'gray')),
                         mode='lines',
                         legendgroup=f'index_mv_{idx_name}',
                         visible=True,
-                        showlegend=False
+                        showlegend=True
                     ),
                     row=2, col=1
                 )

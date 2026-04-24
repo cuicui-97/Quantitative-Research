@@ -66,7 +66,7 @@ def main():
     args = parse_args()
 
     # 设置日志
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info("=" * 60)
     logger.info("涨跌停价格数据获取脚本启动")
     logger.info("=" * 60)

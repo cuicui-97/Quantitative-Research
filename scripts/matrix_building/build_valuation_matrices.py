@@ -180,7 +180,7 @@ def build_valuation_matrix(
 def main():
     """主函数"""
     args = parse_args()
-    logger = setup_logger()
+    logger = setup_logger(prefix="matrix")
 
     logger.info("=" * 80)
     logger.info("开始构建估值矩阵")

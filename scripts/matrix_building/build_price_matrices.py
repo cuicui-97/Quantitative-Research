@@ -140,7 +140,7 @@ def main():
     args = parse_args()
 
     # 设置日志
-    logger = setup_logger()
+    logger = setup_logger(prefix="matrix")
     logger.info("=" * 60)
     logger.info("价格和成交量矩阵构建脚本启动")
     logger.info("=" * 60)

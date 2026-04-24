@@ -31,7 +31,7 @@ def fetch_index_data(api: TushareAPI, ts_code: str, start_date: str = '20150101'
     Returns:
         DataFrame: 指数日线数据
     """
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info(f"获取 {ts_code} 的日线数据（从 {start_date} 开始）...")
 
     try:
@@ -56,7 +56,7 @@ def fetch_index_data(api: TushareAPI, ts_code: str, start_date: str = '20150101'
 
 def main():
     """主函数"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
 
     logger.info("=" * 60)
     logger.info("获取指数数据")

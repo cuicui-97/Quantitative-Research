@@ -28,7 +28,7 @@ from factor_engine.backtest.visualization import (
 
 def main():
     """主函数"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="factor")
 
     logger.info("="*60)
     logger.info("市值因子分析（2015年至今，含指数基准对比）")

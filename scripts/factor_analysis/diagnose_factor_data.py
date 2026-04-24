@@ -215,7 +215,7 @@ def analyze_factor_groups(factor_matrix, tradability_matrix, factor_name, n_grou
 
 def main():
     """主函数"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="factor")
 
     logger.info("="*80)
     logger.info("因子数据质量诊断")

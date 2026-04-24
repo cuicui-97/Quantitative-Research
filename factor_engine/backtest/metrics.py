@@ -56,6 +56,14 @@ class PerformanceMetrics:
         group_returns_with_ls[long_short_col] = group_returns[last_group] - group_returns[first_group]
 
         # 一次性计算所有组（包括多空组合）的统计指标
+        cum_returns = (1 + group_returns_with_ls).cumprod()
+        running_max = cum_returns.cummax()
+        drawdown = (cum_returns - running_max) / running_max
+        max_drawdown = drawdown.min() * 100  # 转为百分比
+
+        annual_return = ((1 + group_returns_with_ls).prod() ** (252 / group_returns_with_ls.notna().sum()) - 1) * 100
+        calmar = annual_return / max_drawdown.abs().replace(0, np.nan)
+
         stats = pd.DataFrame({
             # 日均收益（转为百分比）
             'mean_return': group_returns_with_ls.mean() * 100,
@@ -64,15 +72,22 @@ class PerformanceMetrics:
             'std_return': group_returns_with_ls.std() * 100,
 
             # 夏普比率（年化，假设252个交易日）
-            # Sharpe = (mean / std) × sqrt(252)
             'sharpe_ratio': group_returns_with_ls.mean() / group_returns_with_ls.std() * np.sqrt(252),
 
             # 胜率（正收益天数 / 总交易天数）
             'win_rate': (group_returns_with_ls > 0).sum() / group_returns_with_ls.notna().sum() * 100,
 
             # 累计收益（转为百分比）
-            # Cumulative = prod(1 + r_i) - 1
-            'cumulative_return': ((1 + group_returns_with_ls).prod() - 1) * 100
+            'cumulative_return': ((1 + group_returns_with_ls).prod() - 1) * 100,
+
+            # 年化收益（转为百分比）
+            'annual_return': annual_return,
+
+            # 最大回撤（转为百分比，负数）
+            'max_drawdown': max_drawdown,
+
+            # 卡玛比率（年化收益 / 最大回撤绝对值）
+            'calmar_ratio': calmar,
         })
 
         return stats

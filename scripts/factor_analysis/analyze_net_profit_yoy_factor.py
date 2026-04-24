@@ -72,7 +72,7 @@ def run_analysis(enable_cost: bool, logger):
         logger=logger
     )
 
-    output_dir = Config.DATA_DIR / 'factor_analysis_results' / f'net_profit_yoy_{cost_tag}'
+    output_dir = Config.DATA_DIR / 'factor_analysis_results' / 'all_stocks' / f'net_profit_yoy_{cost_tag}'
     output_dir.mkdir(parents=True, exist_ok=True)
 
     results = analyzer.run_analysis(output_dir=output_dir, save_results=True)
@@ -98,7 +98,7 @@ def run_analysis(enable_cost: bool, logger):
 
 
 def main():
-    logger = setup_logger()
+    logger = setup_logger(prefix="factor")
 
     run_analysis(enable_cost=False, logger=logger)
     run_analysis(enable_cost=True, logger=logger)

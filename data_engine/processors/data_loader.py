@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 数据加载工具函数
 
@@ -5,7 +7,8 @@
 """
 import logging
 import pandas as pd
-from typing import Any
+import numpy as np
+from typing import Any, Optional, List, Callable
 from config.config import Config
 
 logger = logging.getLogger(__name__)
@@ -15,7 +18,7 @@ def load_daily_data(
     ts_code: str,
     dates: pd.DatetimeIndex,
     default_value: Any = None
-) -> pd.DataFrame:
+) -> Optional[pd.DataFrame]:
     """
     加载日线数据的通用函数
 
@@ -86,6 +89,66 @@ def load_daily_column(
     return series
 
 
+def extract_stock_data(
+    ts_code: str,
+    dates: pd.DatetimeIndex,
+    columns: List[str] = None
+) -> pd.DataFrame:
+    """
+    提取股票多列数据
+
+    Args:
+        ts_code: 股票代码
+        dates: 日期索引
+        columns: 需要的列名列表，默认 ['open', 'high', 'low', 'close', 'vol', 'amount']
+
+    Returns:
+        DataFrame: 包含指定列的数据，缺失值为 NaN
+    """
+    if columns is None:
+        columns = ['open', 'high', 'low', 'close', 'vol', 'amount']
+
+    df = load_daily_data(ts_code, dates)
+
+    if df is None:
+        return pd.DataFrame(index=dates, columns=columns)
+
+    result = pd.DataFrame(index=dates)
+    for col in columns:
+        if col in df.columns:
+            result[col] = df[col].astype(np.float32)
+        else:
+            result[col] = np.nan
+
+    return result
+
+
+def get_all_trading_dates() -> pd.DatetimeIndex:
+    """
+    获取所有交易日
+
+    Returns:
+        DatetimeIndex: 交易日列表
+    """
+    trade_calendar = pd.read_csv(Config.SUPPLEMENTARY_DATA_DIR / 'trade_calendar.csv')
+    trade_calendar = trade_calendar[trade_calendar['is_open'] == 1]
+    dates = pd.DatetimeIndex(pd.to_datetime(
+        trade_calendar['cal_date'].astype(str), format='%Y%m%d'
+    ))
+    return dates
+
+
+def get_all_stocks() -> List[str]:
+    """
+    获取所有股票代码列表
+
+    Returns:
+        List[str]: 股票代码列表
+    """
+    basic_info = pd.read_csv(Config.BASIC_DATA_DIR / 'all_companies_info.csv')
+    return basic_info['ts_code'].tolist()
+
+
 def check_daily_data_exists(ts_code: str) -> bool:
     """
     检查股票的日线数据是否存在
@@ -98,3 +161,50 @@ def check_daily_data_exists(ts_code: str) -> bool:
     """
     daily_file = Config.DAILY_DATA_DIR / f'{ts_code}.csv'
     return daily_file.exists()
+
+
+def build_matrix_from_extractor(
+    extractor_func: Callable[[str, pd.DatetimeIndex], pd.Series],
+    dates: Optional[pd.DatetimeIndex] = None,
+    stocks: Optional[List[str]] = None,
+    logger: Optional[logging.Logger] = None
+) -> pd.DataFrame:
+    """
+    从提取函数构建矩阵的通用方法
+
+    Args:
+        extractor_func: 提取函数，接收 (ts_code, dates) 返回 Series
+        dates: 日期索引，默认从交易日历获取
+        stocks: 股票列表，默认从基础信息获取
+        logger: 日志对象
+
+    Returns:
+        DataFrame: 构建的矩阵 (dates × stocks)
+    """
+    if dates is None:
+        dates = get_all_trading_dates()
+    if stocks is None:
+        stocks = get_all_stocks()
+
+    if logger:
+        logger.info(f"构建矩阵: {len(stocks)} 只股票, {len(dates)} 个交易日")
+
+    # 初始化结果矩阵
+    result = pd.DataFrame(np.nan, index=dates.strftime('%Y%m%d'), columns=stocks, dtype=np.float32)
+
+    # 逐股票处理
+    total = len(stocks)
+    for i, ts_code in enumerate(stocks, 1):
+        if logger and i % 500 == 0:
+            logger.info(f"处理进度: {i}/{total} ({i/total:.1%})")
+
+        series = extractor_func(ts_code, dates)
+        if series is not None and not series.isna().all():
+            result[ts_code] = series.values.astype(np.float32)
+
+    if logger:
+        logger.info(f"处理完成，共 {total} 只股票")
+        valid_ratio = result.notna().sum().sum() / result.size
+        logger.info(f"有效数据比例: {valid_ratio:.2%}")
+
+    return result

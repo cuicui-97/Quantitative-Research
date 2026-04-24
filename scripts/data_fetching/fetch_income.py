@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--quarters', type=int, default=2, help='增量更新回溯季度数（默认2）')
     args = parser.parse_args()
 
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     api = TushareAPI()
     fetcher = IncomeFetcher(api)
 

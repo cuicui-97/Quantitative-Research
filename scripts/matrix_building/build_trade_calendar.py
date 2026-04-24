@@ -23,7 +23,7 @@ load_dotenv()
 
 def main():
     """构建交易日历缓存"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="matrix")
     logger.info("=" * 60)
     logger.info("交易日历缓存构建脚本启动")
     logger.info("=" * 60)

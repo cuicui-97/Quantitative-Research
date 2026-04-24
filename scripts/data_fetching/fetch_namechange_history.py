@@ -22,7 +22,7 @@ from utils import setup_logger
 
 def main():
     """主函数"""
-    logger = setup_logger()
+    logger = setup_logger(prefix="fetch")
     logger.info("=" * 80)
     logger.info("获取所有股票的名称变更历史")
     logger.info("=" * 80)

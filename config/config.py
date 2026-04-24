@@ -49,6 +49,11 @@ class Config:
     INCOME_DATA_FILE = SUPPLEMENTARY_DATA_DIR / 'income.csv'
     TRADE_CALENDAR_FILE = SUPPLEMENTARY_DATA_DIR / 'trade_calendar.csv'
 
+    # 行业分类数据文件路径
+    INDUSTRY_DATA_FILE = SUPPLEMENTARY_DATA_DIR / 'industry_members.csv'
+    INDUSTRY_L1_MATRIX_FILE = MATRIX_DATA_DIR / 'industry_l1_matrix.csv'
+    INDUSTRY_L2_MATRIX_FILE = MATRIX_DATA_DIR / 'industry_l2_matrix.csv'
+
     # ==================== 抓取配置 ====================
     # 重试配置
     RETRY_TIMES = 3  # 最大重试次数
@@ -79,8 +84,8 @@ class Config:
             dir_path.mkdir(parents=True, exist_ok=True)
 
     @classmethod
-    def get_log_file(cls):
+    def get_log_file(cls, prefix: str = 'run'):
         """获取当前日志文件路径"""
         from datetime import datetime
-        log_filename = f"fetch_{datetime.now().strftime('%Y%m%d')}.log"
+        log_filename = f"{prefix}_{datetime.now().strftime('%Y%m%d')}.log"
         return cls.LOG_DIR / log_filename

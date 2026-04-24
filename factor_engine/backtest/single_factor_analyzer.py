@@ -117,6 +117,8 @@ class SingleFactorAnalyzer:
         self.group_returns_mv = None
         self.stats_equal = None
         self.stats_mv = None
+        self.ic_series = None
+        self.ic_ir = None
 
     def run_analysis(
         self,
@@ -187,6 +189,21 @@ class SingleFactorAnalyzer:
                 logger=self.logger
             )
 
+        # IC/IR 分析
+        self.logger.info("\n[步骤4b] IC/IR 分析")
+        self.ic_series = PerformanceMetrics.calculate_ic(
+            self.factor_matrix,
+            self.return_matrix,
+            method='spearman'
+        )
+        self.ic_ir = PerformanceMetrics.calculate_ic_ir(self.ic_series)
+        self.logger.info(
+            f"  IC均值={self.ic_ir['mean_ic']:.4f}  "
+            f"ICIR={self.ic_ir['ir']:.4f}  "
+            f"IC胜率={self.ic_ir['ic_win_rate']:.1f}%  "
+            f"|IC|均值={self.ic_ir['mean_abs_ic']:.4f}"
+        )
+
         # 输出统计结果
         self._print_statistics()
 
@@ -205,23 +222,27 @@ class SingleFactorAnalyzer:
             'group_returns_equal': self.group_returns_equal,
             'group_returns_mv': self.group_returns_mv,
             'stats_equal': self.stats_equal,
-            'stats_mv': self.stats_mv
+            'stats_mv': self.stats_mv,
+            'ic_series': self.ic_series,
+            'ic_ir': self.ic_ir,
         }
 
     def _print_statistics(self):
-        """打印统计结果到控制台"""
-        print("\n" + "=" * 80)
-        print(f"{self.factor_name} 因子 - 等权收益统计指标:")
-        print("=" * 80)
-        print(self.stats_equal.to_string())
-        print("=" * 80)
+        """输出统计结果"""
+        self.logger.info("\n" + "=" * 80)
+        self.logger.info(f"{self.factor_name} 因子 - 等权收益统计指标:")
+        self.logger.info("=" * 80)
+        for line in self.stats_equal.to_string().splitlines():
+            self.logger.info(line)
+        self.logger.info("=" * 80)
 
         if self.stats_mv is not None:
-            print("\n" + "=" * 80)
-            print(f"{self.factor_name} 因子 - 市值加权收益统计指标:")
-            print("=" * 80)
-            print(self.stats_mv.to_string())
-            print("=" * 80)
+            self.logger.info("\n" + "=" * 80)
+            self.logger.info(f"{self.factor_name} 因子 - 市值加权收益统计指标:")
+            self.logger.info("=" * 80)
+            for line in self.stats_mv.to_string().splitlines():
+                self.logger.info(line)
+            self.logger.info("=" * 80)
 
     def _save_results(self, output_dir: Path):
         """保存结果到文件"""
