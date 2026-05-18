@@ -1,0 +1,39 @@
+# 动量因子配置示例
+# 使用声明式配置定义因子，无需编写代码
+
+factors:
+  - name: reversal_5d
+    description: "5日反转因子"
+    formula: "-close.pct_change(5)"
+    dependencies: ["close"]
+    availability: "close"
+
+  - name: momentum_20d
+    description: "20日动量因子"
+    formula: "close.pct_change(20)"
+    dependencies: ["close"]
+    availability: "close"
+
+  - name: momentum_60d
+    description: "60日动量因子"
+    formula: "close.pct_change(60)"
+    dependencies: ["close"]
+    availability: "close"
+
+  - name: volatility_20d
+    description: "20日波动率"
+    formula: "close.pct_change().rolling_std(20)"
+    dependencies: ["close"]
+    availability: "close"
+
+  - name: max_return_20d
+    description: "20日最大日收益"
+    formula: "close.pct_change().rolling_max(20)"
+    dependencies: ["close"]
+    availability: "close"
+
+  - name: min_return_20d
+    description: "20日最小日收益"
+    formula: "close.pct_change().rolling_min(20)"
+    dependencies: ["close"]
+    availability: "close"

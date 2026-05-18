@@ -7,6 +7,11 @@ from data_engine.processors.matrix_builder import MatrixBuilder
 from data_engine.processors.matrix_processor import MatrixProcessor
 from data_engine.processors.financial_matrix_builder import FinancialMatrixBuilder
 from data_engine.processors.industry_matrix_builder import IndustryMatrixBuilder
+from data_engine.processors.factor_matrix_builder import (
+    FactorMatrixBuilder,
+    PriceBasedFactorBuilder,
+    OHLCVFactorBuilder
+)
 
 __all__ = [
     'save_matrix',
@@ -16,4 +21,7 @@ __all__ = [
     'MatrixProcessor',
     'FinancialMatrixBuilder',
     'IndustryMatrixBuilder',
+    'FactorMatrixBuilder',
+    'PriceBasedFactorBuilder',
+    'OHLCVFactorBuilder',
 ]

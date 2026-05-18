@@ -1,0 +1,24 @@
+# 复合因子配置示例
+# 展示如何组合多个基础因子
+
+factors:
+  # 流动性调整动量
+  - name: mom_liq_adj_20d
+    description: "流动性调整20日动量"
+    formula: "close.pct_change(20) / (turnover_daily.rolling_mean(20) + 0.01)"
+    dependencies: ["close", "turnover_daily"]
+    availability: "close"
+
+  # 波动率调整动量
+  - name: mom_vol_adj_20d
+    description: "波动率调整20日动量"
+    formula: "close.pct_change(20) / (close.pct_change().rolling_std(20) + 0.01)"
+    dependencies: ["close"]
+    availability: "close"
+
+  # 成交额加权收益率
+  - name: amount_weighted_return_20d
+    description: "20日成交额加权收益"
+    formula: "(close.pct_change() * amount).rolling_mean(20) / amount.rolling_mean(20)"
+    dependencies: ["close", "amount"]
+    availability: "close"

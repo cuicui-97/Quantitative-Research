@@ -1,5 +1,16 @@
 """
 回测模块
 
-提供因子回测的核心功能
+基于 FactorMatrix 的回测引擎
 """
+from factor_engine.backtest.backtest_engine import (
+    BacktestEngine,
+    BacktestConfig,
+    BacktestResult
+)
+
+__all__ = [
+    'BacktestEngine',
+    'BacktestConfig',
+    'BacktestResult'
+]

@@ -1,0 +1,51 @@
+# 流动性因子配置示例
+
+factors:
+  # 中间结果：日换手率
+  - name: turnover_daily
+    description: "日换手率"
+    formula: "amount / (circ_mv.shift(1) * 100 + 1e-10)"
+    dependencies: ["amount", "circ_mv"]
+    availability: "close"
+
+  - name: amihud_20d
+    description: "Amihud非流动性指标"
+    formula: "(abs(close.pct_change()) / (amount * 1000 + 1e-10)).rolling_mean(20) * 1e9"
+    dependencies: ["close", "amount"]
+    availability: "close"
+
+  - name: turnover_20d
+    description: "20日平均换手率"
+    formula: "turnover_daily.rolling_mean(20)"
+    dependencies: ["turnover_daily"]
+    availability: "close"
+
+  - name: turnover_vol_20d
+    description: "20日换手率波动率"
+    formula: "turnover_daily.rolling_std(20)"
+    dependencies: ["turnover_daily"]
+    availability: "close"
+
+  - name: turnover_skew_20d
+    description: "20日换手率偏度"
+    formula: "turnover_daily.rolling(20).skew()"
+    dependencies: ["turnover_daily"]
+    availability: "close"
+
+  - name: vp_corr_20d
+    description: "20日价量相关系数"
+    formula: "close.rolling_corr(vol, 20)"
+    dependencies: ["close", "vol"]
+    availability: "close"
+
+  - name: amount_20d
+    description: "20日平均成交额"
+    formula: "amount.rolling_mean(20)"
+    dependencies: ["amount"]
+    availability: "close"
+
+  - name: vol_20d
+    description: "20日平均成交量"
+    formula: "vol.rolling_mean(20)"
+    dependencies: ["vol"]
+    availability: "close"

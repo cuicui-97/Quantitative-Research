@@ -1,7 +1,9 @@
 # 核心依赖
 tushare==1.4.24
-pandas==2.2.0
-numpy==1.26.0
+pandas==2.0.3
+numpy==1.24.3
+requests==2.33.1
+typing_extensions>=4.0.0  # beautifulsoup4依赖
 
 # 配置管理
 python-dotenv==1.0.1

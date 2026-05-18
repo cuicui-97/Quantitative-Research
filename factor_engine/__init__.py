@@ -1,21 +1,20 @@
 """
 因子引擎模块
 
-提供单因子分析的完整框架，包括：
-- 因子定义和计算
-- 分组回测
-- 收益计算（等权/市值加权）
-- 统计分析和可视化
+提供因子分析的完整框架：
+- BacktestEngine: 回测引擎（新版）
+- BacktestConfig: 回测配置
+- BacktestResult: 回测结果
 """
 
-from .backtest.single_factor_analyzer import SingleFactorAnalyzer
-from .backtest.grouping import FactorGrouper
-from .backtest.weighting import WeightCalculator
-from .backtest.metrics import PerformanceMetrics
+from factor_engine.backtest.backtest_engine import (
+    BacktestEngine,
+    BacktestConfig,
+    BacktestResult
+)
 
 __all__ = [
-    'SingleFactorAnalyzer',
-    'FactorGrouper',
-    'WeightCalculator',
-    'PerformanceMetrics',
+    'BacktestEngine',
+    'BacktestConfig',
+    'BacktestResult'
 ]

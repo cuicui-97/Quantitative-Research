@@ -39,7 +39,7 @@ def build_industry_momentum_matrix(return_matrix: pd.DataFrame, industry_map: di
     if logger:
         logger.info(f"构建行业动量因子（{window}日窗口）...")
 
-    # 计算每只股票的过去window日累计收益
+    # 计算每只股票的过去window日累计收益（T日收盘后可计算）
     stock_momentum = return_matrix.rolling(window).mean()
 
     # 获取所有行业
